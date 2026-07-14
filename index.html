@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cotizador Aluminios Morales</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#253042">
+  <link rel="icon" type="image/png" href="icon-logo.png">
+  <link rel="apple-touch-icon" href="icon-logo.png">
+
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --paper: #fff;
+      --ink: #101820;
+      --muted: #56606c;
+      --line: #c9d0d8;
+      --strong-line: #7d8792;
+      --accent: #253042;
+      --accent-2: #4b6f91;
+      --soft: #f6f8fa;
+      --danger: #b42318;
+      --ok: #0f766e;
+      --shadow: 0 12px 28px rgba(15, 23, 42, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 14px;
+    }
+
+    .layout {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .panel, .sheet {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel { padding: 16px; }
+    .sheet { padding: 12px; overflow: auto; }
+
+    @media (min-width: 1080px) {
+      body { padding: 24px; }
+      .layout { grid-template-columns: 390px 1fr; align-items: start; }
+      .panel { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow: auto; }
+    }
+
+    .panel-head {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      color: var(--accent);
+      font-size: 24px;
+      line-height: 1.1;
+      margin: 4px 0 0;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 15px;
+      line-height: 1.25;
+      margin: 18px 0 10px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 16px;
+      padding: 9px 10px;
+    }
+
+    textarea { resize: vertical; line-height: 1.35; }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(75, 111, 145, .2);
+      border-color: var(--accent-2);
+    }
+
+    .grid { display: grid; gap: 10px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .field { min-width: 0; }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      min-height: 42px;
+      padding: 10px 12px;
+      color: var(--accent);
+      background: #fff;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-main { background: var(--accent); color: #fff; }
+    .btn-sub { background: var(--soft); border-color: var(--line); }
+    .btn-danger { color: var(--danger); background: #fff7f7; border-color: #f0c7c4; }
+    .btn-wide { grid-column: 1 / -1; }
+
+    .document {
+      width: min(920px, 100%);
+      min-height: 1180px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #aeb6bf;
+      color: #111;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 13px;
+      line-height: 1.28;
+      padding: 30px 34px;
+    }
+
+    .doc-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f8fafc;
+      padding: 5px;
+    }
+
+    .brand-title {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      color: var(--accent);
+      margin-bottom: 3px;
+    }
+
+    .brand-meta {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #4b5563;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .doc-title {
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .doc-title strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+      margin-top: 8px;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 8px;
+      min-height: 19px;
+    }
+
+    .info-row .label { font-weight: 700; }
+    .doc-rule {
+      border: 0;
+      border-top: 1px solid var(--strong-line);
+      margin: 12px 0;
+    }
+
+    .budget-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-top: 5px;
+    }
+
+    .budget-table th {
+      border-top: 1px solid var(--strong-line);
+      border-bottom: 1px solid var(--strong-line);
+      font-weight: 700;
+      padding: 7px 4px;
+      text-align: left;
+    }
+
+    .budget-table td {
+      border-bottom: 1px dashed #adb5bd;
+      padding: 8px 4px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .budget-table .num { text-align: right; }
+    .detail-main { font-weight: 700; }
+    .detail-sub { margin-top: 3px; color: #333; }
+
+    .summary-strip {
+      border-top: 1px solid var(--strong-line);
+      border-bottom: 1px solid var(--strong-line);
+      padding: 8px 4px;
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-weight: 700;
+    }
+
+    .totals {
+      width: min(330px, 100%);
+      margin-left: auto;
+      margin-top: 18px;
+      border: 1px solid var(--strong-line);
+    }
+
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .total-line:last-child {
+      border-bottom: 0;
+      background: #eef2f6;
+      font-size: 16px;
+    }
+
+    .conditions {
+      margin-top: 28px;
+      font-size: 11px;
+      color: #222;
+    }
+
+    .conditions p { margin: 0 0 7px; }
+
+    .signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      margin-top: 42px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .signature-line {
+      border-top: 1px solid var(--strong-line);
+      padding-top: 7px;
+    }
+
+    .items-editor {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .item-edit {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .item-edit:last-child { border-bottom: 0; }
+
+    .item-line {
+      display: grid;
+      grid-template-columns: 56px 1fr 86px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .item-numbers {
+      display: grid;
+      grid-template-columns: 68px 1fr 1fr 100px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .mini-button {
+      min-height: 40px;
+      padding: 8px;
+      color: var(--danger);
+      background: #fff7f7;
+      border-color: #f0c7c4;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 8px; }
+      .panel, .sheet { border-radius: 0; }
+      .sheet { padding: 8px; }
+      .document { min-width: 760px; padding: 22px 24px; }
+      .grid-2, .grid-3, .info-grid, .signatures { grid-template-columns: 1fr; }
+      .item-line, .item-numbers { grid-template-columns: 1fr 1fr; }
+      .actions { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 10mm; }
+      body { padding: 0; background: #fff; }
+      .panel, .no-print { display: none !important; }
+      .layout { display: block; width: 100%; }
+      .sheet { box-shadow: none; border: 0; padding: 0; overflow: visible; }
+      .document {
+        width: 100%;
+        min-height: 0;
+        border: 0;
+        padding: 0;
+        font-size: 11px;
+      }
+      .conditions { font-size: 9.5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="panel no-print">
+      <div class="panel-head">
+        <div class="eyebrow">Aluminios Morales</div>
+        <h1>Cotizador productos y servicios</h1>
+      </div>
+
+      <h2>Documento</h2>
+      <div class="grid grid-2">
+        <div class="field"><label>Presupuesto N&deg;</label><input id="qNum" type="text"></div>
+        <div class="field"><label>P&aacute;gina</label><input id="qPage" type="text" value="1/1"></div>
+        <div class="field"><label>Fecha</label><input id="qDate" type="date"></div>
+        <div class="field"><label>Vendedor</label><input id="qSeller" type="text" placeholder="Nombre vendedor"></div>
+      </div>
+
+      <h2>Cliente</h2>
+      <div class="grid">
+        <div class="field"><label>Cliente</label><input id="cName" type="text" placeholder="Nombre / Empresa"></div>
+        <div class="grid grid-2">
+          <div class="field"><label>Nro. Cliente</label><input id="cNumber" type="text" readonly></div>
+          <div class="field"><label>RUT</label><input id="cRut" type="text" placeholder="7.032.600-0"></div>
+        </div>
+        <div class="field"><label>Obra</label><input id="cWork" type="text" placeholder="Nombre de obra"></div>
+      </div>
+
+      <h2>Despacho</h2>
+      <div class="grid">
+        <div class="field"><label>Despachar a</label><input id="sName" type="text" placeholder="Nombre receptor"></div>
+        <div class="field"><label>Direcci&oacute;n</label><textarea id="sAddr" rows="3" placeholder="Calle, n&uacute;mero, poblaci&oacute;n"></textarea></div>
+        <div class="grid grid-2">
+          <div class="field"><label>Comuna</label><input id="sCity" type="text" placeholder="Chill&aacute;n"></div>
+          <div class="field"><label>Ciudad</label><input id="sRegion" type="text" placeholder="CHILLAN"></div>
+        </div>
+      </div>
+
+      <h2>Productos y servicios</h2>
+      <div id="itemsEditor" class="items-editor"></div>
+      <button class="btn-sub btn-wide" type="button" onclick="addRow()">Agregar producto o servicio</button>
+
+      <h2>Observaciones</h2>
+      <textarea id="qNotes" rows="3" placeholder="Observaciones internas o para el cliente"></textarea>
+
+      <div class="actions">
+        <button class="btn-main" type="button" onclick="saveData()">Guardar</button>
+        <button class="btn-sub" type="button" onclick="window.print()">Imprimir / PDF</button>
+        <button class="btn-danger btn-wide" id="resetBtn" type="button">Nueva cotizaci&oacute;n</button>
+      </div>
+    </aside>
+
+    <main class="sheet">
+      <section class="document" aria-label="Vista previa del presupuesto">
+        <div class="doc-top">
+          <div class="brand-lockup">
+            <img class="brand-logo" src="icon-logo.png" alt="Logo Aluminios Morales">
+            <div>
+              <div class="brand-title">ALUMINIOS MORALES</div>
+              <div class="brand-meta">
+                Chill&aacute;n | Tel: 973806817<br>
+                RUT: 7.032.600-0
+              </div>
+            </div>
+          </div>
+          <div class="doc-title">
+            <strong>PRESUPUESTO: <span id="prevNum">0000</span></strong>
+            P&aacute;gina <span id="prevPage">1/1</span>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div>
+            <div class="info-row"><span class="label">Cliente:</span><span id="prevCName">---</span></div>
+            <div class="info-row"><span class="label">Nro. Cliente:</span><span id="prevCNumber">---</span></div>
+            <div class="info-row"><span class="label">RUT:</span><span id="prevCRut">---</span></div>
+            <div class="info-row"><span class="label">Fecha presupuesto:</span><span id="prevDate">---</span></div>
+            <div class="info-row"><span class="label">Obra:</span><span id="prevWork">---</span></div>
+            <div class="info-row"><span class="label">Vendedor:</span><span id="prevSeller">---</span></div>
+          </div>
+          <div>
+            <div class="info-row"><span class="label">Despachar a:</span><span id="prevSName">---</span></div>
+            <div class="info-row"><span class="label">&nbsp;</span><span id="prevSAddr1">---</span></div>
+            <div class="info-row"><span class="label">&nbsp;</span><span id="prevSAddr2">---</span></div>
+            <div class="info-row"><span class="label">&nbsp;</span><span id="prevSCity">---</span></div>
+            <div class="info-row"><span class="label">&nbsp;</span><span id="prevSRegion">---</span></div>
+            <div class="info-row"><span class="label">&nbsp;</span><span>OPERACION CONSTITUYE VENTA</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px;">Observaciones: <span id="prevNotes">---</span></div>
+        <hr class="doc-rule">
+
+        <table class="budget-table">
+          <thead>
+            <tr>
+              <th style="width: 44px;">Pos</th>
+              <th>Detalle de producto / servicio</th>
+              <th style="width: 64px;" class="num">Cant</th>
+              <th style="width: 118px;" class="num">Medidas</th>
+              <th style="width: 112px;" class="num">Valor Unit.</th>
+              <th style="width: 118px;" class="num">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+
+        <div class="summary-strip">
+          <span>Unidades: <span id="sumUnits">0.00</span></span>
+          <span>M2 aprox.: <span id="sumM2">0.00</span></span>
+          <span>ML per&iacute;metro aprox.: <span id="sumKg">0.00</span></span>
+        </div>
+
+        <div class="totals">
+          <div class="total-line"><span>Neto</span><span id="prevNet">$0</span></div>
+          <div class="total-line"><span>Total</span><span id="prevTotal">$0</span></div>
+        </div>
+
+        <div class="conditions">
+          <p>- La vigencia del presupuesto es de 30 d&iacute;as.</p>
+          <p>- Las medidas de ventanas deben ser revisadas y aprobadas antes de fabricar. Cambios posteriores ser&aacute;n considerados aumento de obra.</p>
+          <p>- Para iniciar la fabricaci&oacute;n se solicita abono del 50%; el saldo se cancela al finalizar el trabajo.</p>
+          <p>- El presupuesto considera materiales, quincaller&iacute;a, accesorios, fabricaci&oacute;n e instalaci&oacute;n solo cuando est&eacute;n indicados en el detalle.</p>
+          <p>- No incluye retiros, reparaciones de vano, pintura, electricidad ni trabajos adicionales no especificados.</p>
+          <p>- Una vez aprobado el presupuesto se dar&aacute; como le&iacute;do y revisado por el cliente indicado.</p>
+        </div>
+
+        <div class="signatures">
+          <div class="signature-line">Firma cliente</div>
+          <div class="signature-line">Aluminios Morales</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="rowTmpl">
+    <div class="item-edit">
+      <div class="item-line">
+        <div class="field"><label>Pos</label><input type="number" data-f="pos" min="1"></div>
+        <div class="field"><label>Producto / servicio</label><input type="text" data-f="type" placeholder="Ventana, vidrio, vitrina, espejo, instalaci&oacute;n"></div>
+        <button class="mini-button" type="button" onclick="removeRow(this)">Quitar</button>
+      </div>
+      <div class="grid grid-3">
+        <div class="field"><label>Material / l&iacute;nea</label><input type="text" data-f="profile" placeholder="Aluminio, vidrio, espejo, acr&iacute;lico"></div>
+        <div class="field"><label>Color / terminaci&oacute;n</label><input type="text" data-f="color" placeholder="Natural, negro, blanco, pulido"></div>
+        <div class="field"><label>Especificaci&oacute;n</label><input type="text" data-f="glass" placeholder="Vidrio 4 mm, laminado, espejo 3 mm"></div>
+      </div>
+      <div class="field"><label>Incluye / observaci&oacute;n</label><input type="text" data-f="notes" placeholder="Incluye instalaci&oacute;n, retiro, sellos, accesorios"></div>
+      <div class="item-numbers">
+        <div class="field"><label>Cant.</label><input type="number" data-f="qty" min="0" step="1" value="1"></div>
+        <div class="field"><label>Ancho mm</label><input type="number" data-f="width" min="0" step="1" value="0"></div>
+        <div class="field"><label>Alto mm</label><input type="number" data-f="height" min="0" step="1" value="0"></div>
+        <div class="field"><label>Valor unit.</label><input type="number" data-f="price" min="0" step="1" value="0"></div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const KEY = "alu_morales_data_v2";
+    const LEGACY_KEY = "alu_morales_data";
+    const ID_KEY = "alu_morales_id";
+    const CLIENT_ID_KEY = "alu_morales_client_id";
+    const DEFAULT_NOTES = "Presupuesto considera productos y servicios segun medidas y detalle indicado. Confirmar medidas, materiales, terminaciones e instalacion antes de fabricar o ejecutar.";
+    const currency = new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+    const number2 = new Intl.NumberFormat("es-CL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const fields = [
+      "qNum", "qPage", "qDate", "qSeller", "cName", "cNumber",
+      "cRut", "cWork", "sName", "sAddr", "sCity", "sRegion", "qNotes"
+    ];
+
+    function el(id) { return document.getElementById(id); }
+    function val(id, fallback = "---") { return el(id).value.trim() || fallback; }
+    function num(value) { return Number.parseFloat(value) || 0; }
+    function getLastSavedFolio() { return Number.parseInt(localStorage.getItem(ID_KEY), 10) || 112660; }
+    function setLastSavedFolio(folio) { localStorage.setItem(ID_KEY, String(folio)); }
+    function getLastClientNumber() { return Number.parseInt(localStorage.getItem(CLIENT_ID_KEY), 10) || 0; }
+    function setLastClientNumber(number) { localStorage.setItem(CLIENT_ID_KEY, String(number)); }
+
+    function nextClientNumber() {
+      const next = getLastClientNumber() + 1;
+      setLastClientNumber(next);
+      return next;
+    }
+
+    function formatDate(raw) {
+      if (!raw) return "---";
+      return new Date(raw + "T00:00:00").toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "2-digit" });
+    }
+
+    function splitAddress(raw) {
+      const parts = raw.split(/\n|,/).map(part => part.trim()).filter(Boolean);
+      return [parts[0] || "---", parts.slice(1).join(", ") || ""];
+    }
+
+    function collectItems() {
+      return Array.from(document.querySelectorAll("#itemsEditor .item-edit")).map((row, index) => ({
+        pos: row.querySelector('[data-f="pos"]').value || String(index + 1),
+        type: row.querySelector('[data-f="type"]').value,
+        profile: row.querySelector('[data-f="profile"]').value,
+        color: row.querySelector('[data-f="color"]').value,
+        glass: row.querySelector('[data-f="glass"]').value,
+        notes: row.querySelector('[data-f="notes"]').value,
+        qty: row.querySelector('[data-f="qty"]').value,
+        width: row.querySelector('[data-f="width"]').value,
+        height: row.querySelector('[data-f="height"]').value,
+        price: row.querySelector('[data-f="price"]').value
+      }));
+    }
+
+    function update() {
+      el("prevNum").textContent = val("qNum", "0000");
+      el("prevPage").textContent = val("qPage", "1/1");
+      el("prevCName").textContent = val("cName");
+      el("prevCNumber").textContent = val("cNumber");
+      el("prevCRut").textContent = val("cRut");
+      el("prevDate").textContent = formatDate(el("qDate").value);
+      el("prevWork").textContent = val("cWork");
+      el("prevSeller").textContent = val("qSeller");
+      el("prevSName").textContent = val("sName");
+      const addr = splitAddress(el("sAddr").value);
+      el("prevSAddr1").textContent = addr[0];
+      el("prevSAddr2").textContent = addr[1];
+      el("prevSCity").textContent = val("sCity");
+      el("prevSRegion").textContent = val("sRegion");
+      el("prevNotes").textContent = el("qNotes").value.trim() || "";
+
+      let net = 0;
+      let units = 0;
+      let m2 = 0;
+      let frameMl = 0;
+      const rows = collectItems();
+      el("itemsBody").innerHTML = "";
+
+      rows.forEach((item, index) => {
+        const qty = num(item.qty);
+        const width = num(item.width);
+        const height = num(item.height);
+        const price = num(item.price);
+        const subtotal = qty * price;
+        const lineM2 = qty * width * height / 1000000;
+        const lineFrameMl = qty * ((width + height) * 2) / 1000;
+        net += subtotal;
+        units += qty;
+        m2 += lineM2;
+        frameMl += lineFrameMl;
+
+        const details = [
+          item.profile ? `Perfil: ${item.profile}` : "",
+          item.color ? `Color: ${item.color}` : "",
+          item.glass ? `Vidrio: ${item.glass}` : "",
+          item.notes || ""
+        ].filter(Boolean).join(" | ");
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.pos || index + 1}</td>
+          <td><div class="detail-main">${item.type || "---"}</div><div class="detail-sub">${details}</div></td>
+          <td class="num">${number2.format(qty)}</td>
+          <td class="num">${width || height ? `${width} x ${height}` : "---"}</td>
+          <td class="num">${currency.format(price)}</td>
+          <td class="num">${currency.format(subtotal)}</td>
+        `;
+        el("itemsBody").appendChild(tr);
+      });
+
+      el("sumUnits").textContent = number2.format(units);
+      el("sumM2").textContent = number2.format(m2);
+      el("sumKg").textContent = number2.format(frameMl);
+      el("prevNet").textContent = currency.format(net);
+      el("prevTotal").textContent = currency.format(net);
+    }
+
+    function addRow(data = {}) {
+      const row = el("rowTmpl").content.cloneNode(true).querySelector(".item-edit");
+      const index = document.querySelectorAll("#itemsEditor .item-edit").length + 1;
+      const values = {
+        pos: data.pos || index,
+        type: data.type || data.desc || "Ventana corredera",
+        profile: data.profile || "",
+        color: data.color || "",
+        glass: data.glass || "",
+        notes: data.notes || data.subdesc || data.unit || "Incluye fabricacion e instalacion",
+        qty: data.qty || 1,
+        width: data.width || "",
+        height: data.height || "",
+        price: data.price || 0
+      };
+      Object.entries(values).forEach(([key, value]) => {
+        row.querySelector(`[data-f="${key}"]`).value = value;
+      });
+      row.querySelectorAll("input, select").forEach(input => input.addEventListener("input", update));
+      el("itemsEditor").appendChild(row);
+      renumberRows();
+      update();
+    }
+
+    function removeRow(button) {
+      button.closest(".item-edit").remove();
+      renumberRows();
+      update();
+    }
+
+    function renumberRows() {
+      document.querySelectorAll('#itemsEditor [data-f="pos"]').forEach((input, index) => {
+        if (!input.value) input.value = index + 1;
+      });
+    }
+
+    function readForm() {
+      const header = {};
+      fields.forEach(id => header[id] = el(id).value);
+      return { h: header, i: collectItems() };
+    }
+
+    function saveData() {
+      const raw = readForm();
+      localStorage.setItem(KEY, JSON.stringify(raw));
+      setLastSavedFolio(raw.h.qNum);
+      setLastClientNumber(Math.max(getLastClientNumber(), Number.parseInt(raw.h.cNumber, 10) || 0));
+      alert("Cotizacion guardada localmente.");
+    }
+
+    function loadData() {
+      const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (saved) return saved;
+
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
+      if (!legacy) return null;
+
+      return {
+        h: {
+          qNum: legacy.h.n,
+          qDate: legacy.h.d,
+          qSeller: legacy.h.s,
+          cName: legacy.h.cn,
+          cRut: legacy.h.cr,
+          sAddr: legacy.h.ca,
+          qNotes: legacy.h.nt
+        },
+        i: (legacy.i || []).map((item, index) => ({
+          pos: index + 1,
+          type: item.desc || "Ventana de aluminio",
+          profile: "",
+          color: "",
+          glass: "",
+          notes: item.unit || "",
+          qty: item.qty,
+          price: item.price
+        }))
+      };
+    }
+
+    function startNewQuote() {
+      if (!confirm("Seguro que quieres generar un nuevo numero de presupuesto?")) return;
+      const current = Number.parseInt(el("qNum").value, 10) || getLastSavedFolio();
+      setLastSavedFolio(current);
+      fields.forEach(id => el(id).value = "");
+      el("qNum").value = current + 1;
+      el("cNumber").value = nextClientNumber();
+      el("qPage").value = "1/1";
+      el("qDate").value = new Date().toISOString().split("T")[0];
+      el("qNotes").value = DEFAULT_NOTES;
+      el("itemsEditor").innerHTML = "";
+      addRow();
+      localStorage.removeItem(KEY);
+      update();
+    }
+
+    window.addEventListener("load", () => {
+      const saved = loadData();
+      if (saved) {
+        fields.forEach(id => { if (saved.h[id] !== undefined) el(id).value = saved.h[id]; });
+        if (!el("cNumber").value) el("cNumber").value = nextClientNumber();
+        setLastClientNumber(Math.max(getLastClientNumber(), Number.parseInt(el("cNumber").value, 10) || 0));
+        if (!el("qPage").value) el("qPage").value = "1/1";
+        if (!el("qDate").value) el("qDate").value = new Date().toISOString().split("T")[0];
+        (saved.i || []).forEach(addRow);
+        if (!(saved.i || []).length) addRow();
+      } else {
+        el("qNum").value = getLastSavedFolio() + 1;
+        el("cNumber").value = nextClientNumber();
+        el("qPage").value = "1/1";
+        el("qDate").value = new Date().toISOString().split("T")[0];
+        el("qNotes").value = DEFAULT_NOTES;
+        addRow({
+          type: "Ventana corredera",
+          profile: "Aluminio",
+          color: "Natural",
+          glass: "Vidrio 4 mm",
+          notes: "Incluye fabricacion e instalacion"
+        });
+      }
+
+      fields.forEach(id => el(id).addEventListener("input", update));
+      el("resetBtn").addEventListener("click", startNewQuote);
+      update();
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>

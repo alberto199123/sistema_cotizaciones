@@ -1,0 +1,19 @@
+{
+  "short_name": "Cotizador AM",
+  "name": "Cotizador Aluminios Morales",
+  "description": "Cotizador de productos y servicios para Aluminios Morales.",
+  "icons": [
+    {
+      "src": "icon-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#253042",
+  "background_color": "#eef1f4"
+}
